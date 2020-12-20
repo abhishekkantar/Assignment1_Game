@@ -46,7 +46,7 @@ export default function Game() {
     }
 
     const startPlay = () => {
-        spritesPosition= spritesPos;
+        spritesPosition = spritesPos;
         interval = setInterval(move, 1000);
 
     }
@@ -54,9 +54,9 @@ export default function Game() {
     const move = () => {
         if (spritesPosition.length > 0) {
             if (!currentPPPos.current) {
-                currentPPPos.current = playerPositionCellId;
+                currentPPPos.current = playerPosition;
             }
-            let movedIndex = nextMovement(currentPPPos.current);
+            let movedIndex = nextMovement([...currentPPPos.current]);
             document.getElementById(movedIndex).innerHTML = "PP";
             document.getElementById(currentPPPos.current).innerHTML = "";
             currentPPPos.current = movedIndex;
@@ -74,18 +74,33 @@ export default function Game() {
     }
 
     const nextMovement = (currentPosition) => {
-        if (isMax || currentPosition == (matrix * matrix) - 1) {
-            isMax = true;
-            return currentPosition - 1;
+        let possibleMoves = [];
+        let x1 = parseInt(currentPosition[0]) - 1;
+        let x2 = parseInt(currentPosition[0]) + 1;
+        let y1 = parseInt(currentPosition[1]) - 1;
+        let y2 = parseInt(currentPosition[1]) + 1;
+        if (cellIndexRef.current.includes(x1 + currentPosition[1])) {
+            possibleMoves.push(x1 + currentPosition[1]);
         }
-        else if (!isMax) {
-            return currentPosition + 1;
+
+        if (cellIndexRef.current.includes(x2 + currentPosition[1])) {
+            possibleMoves.push(x2 + currentPosition[1]);
         }
+
+        if (cellIndexRef.current.includes(currentPosition[0] + y1)) {
+            possibleMoves.push(currentPosition[0] + y1);
+        }
+
+        if (cellIndexRef.current.includes(currentPosition[0] + y2)) {
+            possibleMoves.push(currentPosition[0] + y2);
+        }
+        console.log(possibleMoves);
+        return possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
 
     }
 
     const createTable = () => {
-        let table = [], sprites, cellId = 0;
+        let table = [], sprites;
         for (let i = 0; i < matrix; i++) {
             let children = []
             for (let j = 0; j < matrix; j++) {
@@ -95,13 +110,12 @@ export default function Game() {
                     sprites = "SS";
                 }
                 if (playerPosition == ij) {
-                    children.push(<td id={cellId} style={{ border: '3px solid black', width: '30px', height: '30px', color: 'green' }} onClick={startPlay}><b>PP</b></td>);
-                    playerPositionCellId = cellId;
+                    children.push(<td id={ij} style={{ border: '3px solid black', width: '30px', height: '30px', color: 'green' }} onClick={startPlay}><b>PP</b></td>);
+                    // playerPositionCellId = cellId;
                 } else {
-                    children.push(<td id={cellId} style={{ border: '3px solid black', width: '30px', height: '30px', color: 'green' }}><b>{sprites}</b></td>);
+                    children.push(<td id={ij} style={{ border: '3px solid black', width: '30px', height: '30px', color: 'green' }}><b>{sprites}</b></td>);
                 }
 
-                cellId += 1;
             }
             table.push(<tr>{children}</tr>)
         }
